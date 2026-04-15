@@ -53,7 +53,12 @@ export default function App() {
   const [showTables, setShowTables] = useState(true);
   const [isSimulating, setIsSimulating] = useState(false);
   const [packetPos, setPacketPos] = useState<number | null>(null); // 0 to 1 along the path
+  const [viewState, setViewState] = useState({ x: 0, y: 0, k: 1 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [hasMoved, setHasMoved] = useState(false);
 
+  const svgRef = useRef<SVGSVGElement>(null);
   const tableRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // --- Initialization ---
@@ -80,11 +85,68 @@ export default function App() {
   }, [nodes, edges, simSrc, simDst, algo, failedNodes]);
 
   // --- Handlers ---
+  const handleCanvasMouseDown = (e: React.MouseEvent) => {
+    if (e.button === 0) { // Left click
+      setIsPanning(true);
+      setDragStart({ x: e.clientX, y: e.clientY });
+      setHasMoved(false);
+    }
+  };
+
+  const handleCanvasMouseMove = (e: React.MouseEvent) => {
+    if (isPanning) {
+      const dx = e.clientX - dragStart.x;
+      const dy = e.clientY - dragStart.y;
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+        setHasMoved(true);
+        setViewState(prev => ({
+          ...prev,
+          x: prev.x + dx,
+          y: prev.y + dy
+        }));
+        setDragStart({ x: e.clientX, y: e.clientY });
+      }
+    }
+  };
+
+  const handleCanvasMouseUp = () => {
+    setIsPanning(false);
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const scaleFactor = 1.05;
+    const direction = e.deltaY > 0 ? 1 / scaleFactor : scaleFactor;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // Calculate mouse position in world coordinates
+    const worldX = (mouseX - viewState.x) / viewState.k;
+    const worldY = (mouseY - viewState.y) / viewState.k;
+
+    const newK = Math.min(Math.max(viewState.k * direction, 0.2), 5);
+    
+    // New offset to keep mouse at same world position
+    const newX = mouseX - worldX * newK;
+    const newY = mouseY - worldY * newK;
+
+    setViewState({ x: newX, y: newY, k: newK });
+  };
+
   const handleCanvasClick = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (hasMoved) return; // Don't add node if we were panning
+
     if (mode === 'add-node') {
       const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      
+      // Convert screen coords to world coords
+      const x = (mouseX - viewState.x) / viewState.k;
+      const y = (mouseY - viewState.y) / viewState.k;
+      
       const id = `R${nodes.length}`;
       const color = NODE_COLORS[nodes.length % NODE_COLORS.length];
       setNodes([...nodes, { id, x, y, color }]);
@@ -178,6 +240,11 @@ export default function App() {
     setSimSrc('');
     setSimDst('');
     setSelectedNode(null);
+    setViewState({ x: 0, y: 0, k: 1 });
+  };
+
+  const handleResetView = () => {
+    setViewState({ x: 0, y: 0, k: 1 });
   };
 
   const handleSendMessage = () => {
@@ -259,6 +326,13 @@ export default function App() {
             </div>
           </div>
           <button 
+            onClick={handleResetView}
+            className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors border border-slate-700"
+            title="Reset View"
+          >
+            <RotateCcw className="w-5 h-5" />
+          </button>
+          <button 
             onClick={handleReset}
             className="p-2.5 rounded-xl bg-red-600/10 hover:bg-red-600/20 text-red-500 transition-colors border border-red-500/20"
             title="Clear Canvas"
@@ -280,20 +354,35 @@ export default function App() {
         </aside>
 
         {/* --- Main Canvas Area --- */}
-        <main className="flex-1 relative bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px]">
+        <main className="flex-1 relative bg-slate-950 overflow-hidden">
           <svg 
-            className="w-full h-full cursor-crosshair"
+            ref={svgRef}
+            className="w-full h-full cursor-grab active:cursor-grabbing"
             onClick={handleCanvasClick}
+            onMouseDown={handleCanvasMouseDown}
+            onMouseMove={handleCanvasMouseMove}
+            onMouseUp={handleCanvasMouseUp}
+            onMouseLeave={handleCanvasMouseUp}
+            onWheel={handleWheel}
           >
             <defs>
               <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="4" result="blur" />
                 <feComposite in="SourceGraphic" in2="blur" operator="over" />
               </filter>
+              
+              {/* Grid Pattern */}
+              <pattern id="grid" width={32 * viewState.k} height={32 * viewState.k} patternUnits="userSpaceOnUse" x={viewState.x} y={viewState.y}>
+                <circle cx={1} cy={1} r={1} fill="#1e293b" />
+              </pattern>
             </defs>
 
-            {/* Edges */}
-            {edges.map(edge => {
+            {/* Background Grid */}
+            <rect width="100%" height="100%" fill="url(#grid)" />
+
+            <g transform={`translate(${viewState.x}, ${viewState.y}) scale(${viewState.k})`}>
+              {/* Edges */}
+              {edges.map(edge => {
               const source = nodes.find(n => n.id === edge.source);
               const target = nodes.find(n => n.id === edge.target);
               if (!source || !target) return null;
@@ -414,7 +503,8 @@ export default function App() {
                 )}
               </g>
             ))}
-          </svg>
+          </g>
+        </svg>
 
           {/* --- Simulation Controls Overlay --- */}
           <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between pointer-events-none">
