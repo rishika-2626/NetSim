@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+:root {
+  --bg:        #050810;
+  --bg1:       #080d18;
+  --bg2:       #0c1220;
+  --bg3:       #111827;
+  --bg4:       #182035;
+  --bg5:       #1e2a42;
+  --border:    rgba(255,255,255,0.06);
+  --border2:   rgba(255,255,255,0.10);
+  --border3:   rgba(255,255,255,0.16);
+  --text:      #e2e8f4;
+  --text2:     #7d8fa8;
+  --text3:     #404f66;
+  --blue:      #3b82f6;
+  --blue2:     #1d4ed8;
+  --blue-l:    #93c5fd;
+  --blue-dim:  rgba(59,130,246,0.12);
+  --green:     #10d9a0;
+  --green2:    #059669;
+  --green-l:   #6ee7c7;
+  --green-dim: rgba(16,217,160,0.10);
+  --amber:     #f59e0b;
+  --amber-l:   #fcd34d;
+  --amber-dim: rgba(245,158,11,0.10);
+  --red:       #f43f5e;
+  --red-dim:   rgba(244,63,94,0.10);
+  --purple:    #8b5cf6;
+  --purple-l:  #c4b5fd;
+  --purple-dim:rgba(139,92,246,0.12);
+  --cyan:      #22d3ee;
+  --pink:      #ec4899;
+  --r:  5px;
+  --r2: 8px;
+  --r3: 12px;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-200;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+.stroke-dasharray-4 {
+  stroke-dasharray: 4;
+}
+
+@keyframes packet-glow {
+  0% { filter: drop-shadow(0 0 2px var(--green)); opacity: 0.6; }
+  50% { filter: drop-shadow(0 0 12px var(--green)); opacity: 1; }
+  100% { filter: drop-shadow(0 0 2px var(--green)); opacity: 0.6; }
+}
+
+.animate-packet-glow {
+  animation: packet-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes node-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+.node-active {
+  animation: node-pulse 2s infinite;
+}

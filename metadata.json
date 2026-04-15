@@ -1,0 +1,6 @@
+{
+  "name": "NetSim v2.1",
+  "description": "Interactive Network Router Simulator with Distance Vector and Link State algorithms, featuring router failure simulation and count-to-infinity demonstration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
