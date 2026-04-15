@@ -3,7 +3,7 @@
 An advanced Computer Networks simulation tool that visualizes how routing algorithms work in real time.
 Built with a modern UI and smooth animations, NetSim allows users to design network topologies, simulate routing protocols, and observe packet transmission interactively.
 
-[Click here for preview](https://netsim-gbm7.onrender.com)
+[Click here for preview](https://netsim-app.onrender.com)
 ---
 
 ## 🚀 Features
