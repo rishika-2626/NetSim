@@ -22,6 +22,12 @@ Built with a modern UI and smooth animations, NetSim allows users to design netw
 - ⚡ Full convergence simulation
 - 🔄 Real-time updates on topology changes
 
+### ♾️ Count-to-Infinity
+- 🔍 Simulates the Count-to-Infinity problem in Distance Vector Routing
+- 📈 Visualizes gradual cost increase when a link fails
+- ⏳ Step-by-step propagation of incorrect routing info
+- 🎯 Helps understand routing loops and slow convergence
+  
 ### 📊 Routing Tables
 - 📋 Automatic routing table generation for each router
 - 🔍 Displays:
@@ -56,6 +62,7 @@ Built with a modern UI and smooth animations, NetSim allows users to design netw
 | Layer | Technology |
 |---|---|
 | Frontend | Next.js, React |
+| Language | TypeScript |
 | Styling | CSS Modules |
 | Visualization | Custom Canvas Rendering |
 | Algorithms | Dijkstra (Link State), Bellman-Ford (Distance Vector) |
@@ -65,22 +72,28 @@ Built with a modern UI and smooth animations, NetSim allows users to design netw
 ## 📂 Project Structure
 
 ```
-/components
-  ├── TopBar.js          # Control panel for modes and resets
-  ├── NetworkCanvas.js   # Main interactive graph area
-  ├── BottomBar.js       # Routing table and simulation info
-  ├── WeightPopup.js     # Modal for assigning link costs
-  ├── Toast.js           # Notifications and alerts
-
-/lib
-  ├── routing.js         # Dijkstra and Bellman-Ford implementations
-  ├── defaultTopology.js # Pre-configured network state
-
-/pages
-  ├── index.js           # Main application entry point
-
-/styles
-  ├── Home.module.css    # Global and component-specific styles
+│
+├── dist/ # Production build output
+├── node_modules/ # Dependencies
+│
+├── src/
+│ ├── lib/
+│ │ ├── defaultTopology.ts # Initial graph state
+│ │ ├── routing.ts # Dijkstra + Bellman-Ford
+│ │
+│ ├── App.tsx # Main UI component
+│ ├── main.tsx # Entry point
+│ ├── index.css # Global styles
+│
+├── index.html # Root HTML file
+├── package.json
+├── package-lock.json
+├── tsconfig.json
+├── vite.config.ts
+├── .env.example
+├── .gitignore
+├── metadata.json
+└── README.md
 
 ```
 ---
@@ -104,17 +117,18 @@ Built with a modern UI and smooth animations, NetSim allows users to design netw
 4. Path is highlighted visually
 5. Packet animation runs along path
 6. Routing tables update in real-time
-
+7. Trigger Count-to-Infinity scenario (optional)
+   
 ---
 
 ## 🧪 How to Run Locally
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/netsim.git
+git clone https://github.com/your-username/NetSim.git
 
 # Navigate to project
-cd netsim
+cd NetSim
 
 # Install dependencies
 npm install
@@ -124,6 +138,15 @@ npm run dev
 ```
 
 Then open: [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 📦 Build for Production
+
+```
+npm run build
+npm run preview
+```
 
 ---
 
@@ -137,6 +160,7 @@ Then open: [http://localhost:3000](http://localhost:3000)
 | ❌ Delete | Switch to delete mode → Click node or edge |
 | 🚀 Simulate Path | Select source & destination → Click Simulate |
 | 📋 View Routing Table | Select router from bottom panel |
+| ♾️ Count-to-Infinity | Trigger failure scenario |
 
 ---
 
@@ -147,7 +171,8 @@ Then open: [http://localhost:3000](http://localhost:3000)
 - Smooth packet animation
 - Clean and intuitive UI
 - Educational + practical learning tool
-
+- Count-to-Infinity simulation
+  
 ---
 
 ## 🎯 Future Enhancements
